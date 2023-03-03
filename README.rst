@@ -16,7 +16,7 @@ Define functions and annotate them with a `@CLI` decorator.  Then those function
 Get Started
 ===========
 
-Create a file named `cli.py` (or anything) with the following code.
+Create a file named ``cli.py`` (or anything) with the following code.
 Make it executable: ``chmod +x cli.py``.
 
 .. code-block:: python
@@ -50,13 +50,15 @@ Make it executable: ``chmod +x cli.py``.
     bootstrap(sys.argv[1:])
 
 
-This file simply bootstraps a project-local virtual environment, installs yaclipy into it and then turns control over to yaclipy.
+This file simply bootstraps a project-local virtual environment ``VENV_DIR``, installs yaclipy into it and then turns control over to yaclipy.
 
 Next create a ``requirements.txt`` file which holds the package dependencies that need to be installed into the virtual environment.
 
 .. code-block:: text
 
-    # *NOTE* If you edit this file then delete the `requirements.lock` file and run `./cli.py` to update the new dependencies
+    # *NOTE*
+    # If you edit this file then delete the `requirements.lock` 
+    # file and run `./cli.py` to update the new dependencies
     
     PyYAML
     numpy

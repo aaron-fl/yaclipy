@@ -1,0 +1,7 @@
+# *NOTE*
+# If you edit this file then delete the `requirements.lock` 
+# file and run `./cli.py` to update the new dependencies
+
+PyYAML
+numpy
+# etc...
