@@ -77,7 +77,7 @@ Installation
 ============
 
 Don't install this package manually.
-Instead use the bootstrapping method show in :ref:`Get Started`.
+Instead use the bootstrapping method show in `Get Started`.
 
 .. code-block:: console
    
