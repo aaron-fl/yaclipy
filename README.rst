@@ -1,7 +1,9 @@
 yaclipy
 =======
 
-Yet another python command-line interface.  This is similar to `python-fire <https://github.com/google/python-fire`_ with a few important distinctions:
+Yet another python command-line interface...
+
+This is similar to `python-fire <https://github.com/google/python-fire>`_ with a few important distinctions:
  * Parameter types are defined by the function definition and not by what was given on the command line
  * Sub commands are given explicitly.  This gives the ability to show and create documentation for sub commands without executing them.  You can still call methods of the returned values though.
  * Better documentation of the commands.
@@ -9,6 +11,7 @@ Yet another python command-line interface.  This is similar to `python-fire <htt
 Define functions and annotate them with a `@CLI` decorator.  Then those functions can be called from the command line.
 
 
+.. _Get Started:
 
 Get Started
 ===========
@@ -67,12 +70,16 @@ Finally, you can start using ``cli.py``.
     $ ./cli.py -h
 
 
+
 Installation
 ============
 
+Don't install this package manually.
+Instead use the bootstrapping method show in :ref:`Get Started`.
+
 .. code-block:: console
    
-   $ pip install yaclipy
+   $ pip install yaclipy # Don't do this!
 
 
 .. image:: https://img.shields.io/pypi/v/yaclipy.svg
@@ -81,7 +88,6 @@ Installation
 
 .. image:: https://img.shields.io/pypi/pyversions/yaclipy.svg
    :target: https://pypi.org/project/yaclipy
-
 
 
 
