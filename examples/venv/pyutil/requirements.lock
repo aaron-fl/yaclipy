@@ -1,0 +1,5 @@
+numpy==1.24.2
+print-ext==0.9.1
+PyYAML==6.0
+wcwidth==0.2.6
+-e git+https://github.com/aaron-fl/yaclipy@e7fe4a14160622ff26d33eac713e94fc982cc601#egg=yaclipy

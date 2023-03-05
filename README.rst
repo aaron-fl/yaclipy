@@ -13,75 +13,79 @@ Define functions and annotate them with a `@CLI` decorator.  Then those function
 
 .. _Get Started:
 
-Get Started
-===========
+Quick Reference
+===============
 
-Create a file named ``cli.py`` (or anything) with the following code.
-Make it executable: ``chmod +x cli.py``.
+Given the following file named `cli.py`:
 
 .. code-block:: python
-
     #!/usr/bin/env python
-    import os, sys
-    from subprocess import call # Just in case the system python is crazy-old
-    from os.path import join, abspath, split, exists
+    import sys
+    from yaclipy import boot, SubCmds
 
-    VENV_DIR='.python' # This can be moved if needed
+    def foo(id, /, arg__a=3, *, cats__c:int):
+        ''' Foo stuff
 
-    def abort(*reason):
-        print('\n'+'!'*75,'\nERROR:', *reason)
-        print('Look above for the specific error.','\n'+'!'*75,'\n')
-        import shutil
-        shutil.rmtree(VENV_DIR, ignore_errors=True)
-        sys.exit(1)
+        Parameters:
+            <id> *required*
+                The foo id to manipulate.  Positional only
+            <int>, --arg <int>, -a <int>
+                This can be specified by position or by name.
+            --cats <int>, -c <int>
+                The number of cats.  keyword-only parameter
+        '''
 
-    os.chdir(split(abspath(__file__))[0]) # Make the cwd the same as this file
-    if sys.prefix == sys.base_prefix: # Not in the virtual env
-        new = not exists(VENV_DIR)
-        if new and call(['python3', '-m','venv',VENV_DIR]):
-            abort("Couldn't create python3 virtual environment at", VENV_DIR)
-        os.environ['PATH'] = join(VENV_DIR,'bin') + os.pathsep + os.environ['PATH']
-        if new and call(['python', '-m', 'pip', 'install', 'yaclipy']):
-            abort("Couldn't install yaclipy into the virtual environment")
-        os.execvp('python', ['python', './cli.py'] + sys.argv[1:])
+    def bar(a:[float], names:[], *, flags__f=['empty']):
+        ''' Bar-like things
 
-    # Now we are running in the virtual environment.  Turn control over to yaclipy
-    from yaclipy.boot import bootstrap
-    bootstrap(sys.argv[1:])
+        Parameters:
+            [float]
+                Data points
+            [name]
+                List of names
+            --flags [flag], -f [flag]
+                Compiler flags
+        '''
 
+    @SubCmds(foo, bar)
+    def main(*, verbose__v=False, quiet__q=False):
+        ''' The main entrypoint for calling foo and bar.
 
-This file simply bootstraps a project-local virtual environment ``VENV_DIR``, installs yaclipy into it and then turns control over to yaclipy.
+        Parameters:
+            --verbose, -v
+                More output
+            --quiet, -q
+                Less output
+        '''
 
-Next create a ``requirements.txt`` file which holds the package dependencies that need to be installed into the virtual environment.
-
-.. code-block:: text
-
-    # *NOTE*
-    # If you edit this file then delete the `requirements.lock` 
-    # file and run `./cli.py` to update the new dependencies
-    
-    PyYAML
-    numpy
-    # etc...
+    if __name__ == '__main__':
+        boot(main, sys.argv[1:])
 
 
-Finally, you can start using ``cli.py``.
+Then you can call call the 
 
-.. code-block:: console
-    
-    $ ./cli.py -h
+
+cli.py
+======
+
+Instead of installing yaclipy into the system it is better to manage python packages on a per-project basis with virtual environments.
+
+To easily facilitate this style copy the contents of `examples/venv` to your project directory and then run `./cli.py`.
+
+The `cli.py` file simply bootstraps a project-local virtual environment ``VENV_DIR``, installs yaclipy into it, and then turns control over to yaclipy.
+
+The ``requirements.txt`` file holds the package dependencies that need to be installed into the virtual environment.  When changing dependencies make sure to delete the corrosponding lock file so that the changes are picked-up.
 
 
 
 Installation
 ============
 
-Don't install this package manually.
-Instead use the bootstrapping method show in `Get Started`.
+Instead of installing this manually, use the bootstrapping method show in `cli.py`.
 
 .. code-block:: console
    
-   $ pip install yaclipy # Don't do this!
+   $ pip install yaclipy
 
 
 .. image:: https://img.shields.io/pypi/v/yaclipy.svg

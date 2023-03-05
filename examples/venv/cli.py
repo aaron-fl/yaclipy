@@ -4,6 +4,7 @@ from subprocess import call # Just in case the system python is crazy-old
 from os.path import join, abspath, split, exists
 
 VENV_DIR='.python' # This can be moved if needed
+REQ = 'pyutil/requirements.txt' # This can be moved/renamed
 
 def abort(*reason):
     print('\n'+'!'*75,'\nERROR:', *reason)
@@ -15,6 +16,8 @@ def abort(*reason):
 os.chdir(split(abspath(__file__))[0]) # Make the cwd the same as this file
 if sys.prefix == sys.base_prefix: # Not in the virtual env
     new = not exists(VENV_DIR)
+    print(os.path.abspath(VENV_DIR))
+    sys.exit(1)
     if new:
         if call(['python3', '-m','venv',VENV_DIR]):
             abort("Couldn't create python3 virtual environment at", VENV_DIR)
@@ -25,6 +28,7 @@ if sys.prefix == sys.base_prefix: # Not in the virtual env
     os.execvp('python', ['python', './cli.py'] + sys.argv[1:])
 
 # Now we are running in the virtual environment.  Turn control over to yaclipy
-from yaclipy.boot import bootstrap
-bootstrap(sys.argv[1:])
-
+from yaclipy import ensure_requirements, boot
+ensure_requirements(req=REQ, venv=VENV_DIR)
+from pyutil.main import main
+boot(main, sys.argv[1:])
