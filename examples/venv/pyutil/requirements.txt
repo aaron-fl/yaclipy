@@ -3,3 +3,4 @@
 # file and run `./cli.py` to update the new dependencies
 
 PyYAML
+numpy

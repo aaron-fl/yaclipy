@@ -7,6 +7,8 @@ def run():
     ''' Run the project
     '''
     log.info('Running...')
+    log.warn('Uh-oh')
+    log.debug('Fixing stuff')
 
 
 
@@ -24,7 +26,7 @@ def deploy():
 
 
 
-@sub_cmds(shout, say)
+@sub_cmds(run, build, deploy)
 def main(*, verbose__v=False, quiet__q=False, target__t=''):
     ''' This is the sole entrypoint for this project.
     
@@ -34,5 +36,5 @@ def main(*, verbose__v=False, quiet__q=False, target__t=''):
         --quiet, -q
             Decrease the logging level by one notch
     '''
-    level = max(0, min(50, 20 + 10*(int(verbose__v) - int(quiet__q))))
+    level = max(0, min(50, 20 - 10*(int(verbose__v) - int(quiet__q))))
     logging.basicConfig(style='{', format='{levelname:>7} {name:>10} {lineno:<3} | {message}', level=level)

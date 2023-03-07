@@ -16,8 +16,6 @@ def abort(*reason):
 os.chdir(split(abspath(__file__))[0]) # Make the cwd the same as this file
 if sys.prefix == sys.base_prefix: # Not in the virtual env
     new = not exists(VENV_DIR)
-    print(os.path.abspath(VENV_DIR))
-    sys.exit(1)
     if new and call(['python3', '-m','venv',VENV_DIR]):
         abort("Couldn't create python3 virtual environment at", VENV_DIR)
     os.environ['PATH'] = join(VENV_DIR,'bin') + os.pathsep + os.environ['PATH']
