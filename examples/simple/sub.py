@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 import sys
-from yaclipy import boot, SubCmds
+from yaclipy import boot, sub_cmds
 
 
-def donkey(*, _say, name__n="Gordon"):
+def donkey(*, _say, name__n="Gordon") -> str:
     ''' Donkey Donkey
     '''
-    print(_say, name__n)
+    return f'{name__n} says, "{_say}"'
 
 
-def dog(*, _say, times__t=3):
+def dog(*, _say, times__t=3) -> str:
     ''' Dogs barking
     '''
     return _say + ' bark!'*times__t
 
 
-@SubCmds(dog, donkey)
+@sub_cmds(dog, donkey)
 def main(say, /, *, verbose__v=False):
     ''' Say stuff
 

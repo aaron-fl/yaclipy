@@ -1,6 +1,7 @@
 /.python
 /local
 /dist
+examples/venv/pyutil/requirements.lock
 .coverage
 .pytest_cache
 .python/

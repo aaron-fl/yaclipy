@@ -2,5 +2,5 @@
 #
 # SPDX-License-Identifier: MIT
 from .bootstrap import boot, ensure_requirements
-from .cmd_dfn import CmdDfn, SubCmds
+from .cmd_dfn import CmdDfn, sub_cmds
 from .exceptions import abort

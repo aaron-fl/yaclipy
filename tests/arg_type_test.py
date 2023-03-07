@@ -56,3 +56,24 @@ def test_argtype_merge_flaot():
     assert(a.merge("3.1", [2.1]) == [2.1, 3.1])
 
 
+
+def test_argtype_dict():
+    a = ArgType({'k':3})
+    print(a)
+    assert(a.merge('{"a":[1,2,3]}', {'b':[6]}).keys() == {'a','b'})
+    assert(a.merge('33.3', {'b':[6]}) == 33.3)
+    assert(a.merge('[1,2,3]', ['a','b','c']) == ['a','b','c',1,2,3])
+
+
+
+def test_argtype_custom():
+    class Custom(type):
+        def __new__(self, sval):
+            return 'x'
+    a = ArgType(Custom)
+    assert(a.merge('{"a":[1,2,3]}',None) == 'x')
+
+    def custom(sval):
+        return 'y'
+    a = ArgType(custom)
+    assert(a.merge('{"a":[1,2,3]}',None) == 'y')

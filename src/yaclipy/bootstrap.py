@@ -3,8 +3,8 @@ from os.path import join, basename, splitext, exists
 from print_ext import print, Table
 from print_ext.borders import Borders
 from subprocess import run
-from .exceptions import CommandNotFound, AmbiguousCommand, CallError, ClipyExit, CallHelpError
-from .cmd_dfn import CmdDfn, SubCmds
+from .exceptions import CommandNotFound, AmbiguousCommand, CallError, CallHelpError, UsageError
+from .cmd_dfn import CmdDfn
 from .docs import short_cmd_list
 from .exceptions import abort
 
@@ -32,10 +32,9 @@ def ensure_requirements(req, venv):
 
 
 def _help(cmd):
-    if hasattr(cmd.fn, '_subcmds'):
-        tbl = short_cmd_list(CmdDfn.scrape(cmd.fn._subcmds))
-        print(tbl)
-        if tbl: print.hr()
+    tbl = short_cmd_list(cmd.sub_cmds())
+    print(tbl)
+    if tbl: print.hr()
     print(' ')
     print.pretty(cmd.doc())
     print(' ')
@@ -43,7 +42,7 @@ def _help(cmd):
 
 def boot(main, args, **incoming):
     try:
-        CmdDfn('main', main)(incoming, args)
+        CmdDfn('main', main)(args).run(incoming)
     except AmbiguousCommand as e:
         _help(e.cmd)
         abort(f"Ambiguous \b1 {e.name}\b  matched multiple commands ", ', '.join(f'\b1 {x}\b ' for x in e.choices))
@@ -52,12 +51,13 @@ def boot(main, args, **incoming):
         abort(f"Command not found: \b1 {e.name}", '.  Valid commands are listed above.')
     except CallHelpError as e:
         _help(e.cmd)
+    except UsageError as e:
+        print.pretty(e)
+        sys.exit(2)
     except CallError as e:
         print(' ')
         print.hr('Call Error', style='err')
         print(' ')
-        for err in e.spec.errors:
+        for err in e.errors:
             print(' \berr * ', err, '\v')
         sys.exit(1)    
-    except ClipyExit as e:
-        sys.exit(e.args[0])
