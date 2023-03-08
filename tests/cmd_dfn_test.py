@@ -1,6 +1,6 @@
 import pytest
 from print_ext import print
-from yaclipy.cmd_dfn import CmdDfn, sub_cmds
+from yaclipy import Command, sub_cmds
 from yaclipy.exceptions import *
 from .testutil import exe
 
@@ -34,7 +34,7 @@ class HasCmds(Parent):
 
 def test_cmd_retval_sub_cmds():
     def f() -> HasCmds: pass
-    subs = CmdDfn('f',f).sub_cmds()
+    subs = Command(f).sub_cmds()
     assert(subs.keys() == {'boink', 'break_', 'foo', 'foo_', 'y'})
 
 
@@ -42,5 +42,5 @@ def test_cmd_retval_sub_cmds():
 def test_cmd_sub_cmds():
     @sub_cmds(str, if_=str, bob_cob=str)
     def f(): pass
-    subs = CmdDfn('f',f).sub_cmds()
+    subs = Command(f).sub_cmds()
     assert(subs.keys() == {'str', 'if_', 'bob_cob'})

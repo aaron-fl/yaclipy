@@ -1,29 +1,46 @@
 import pytest
-from yaclipy.docs import short_cmd_list
-from yaclipy.cmd_dfn import CmdDfn, sub_cmds
-from print_ext import Printer
+from yaclipy import Command, sub_cmds
+from yaclipy.exceptions import CmdError
+from print_ext import Printer, Line
+from .testutil import printer
 
 
-def test_short_cmd_list(capfd):
+def test_CmdError_pretty():
     def bob(jump__j):
-        ''' Short description.
-
-        Parameters:
-            <how_high>, --jump <how_high>, -j <how_high>
-        '''
+        '''bobby'''
 
     def x(razor__r):
         '''About time.'''
 
     def cob(*args):
         pass
+
     @sub_cmds(bob_=bob, a_long_name=x)
-    def f():pass
-    cmd = CmdDfn('f',f)
-    Printer()(short_cmd_list(cmd.sub_cmds()))
-    out, _ = capfd.readouterr()
-    print(out)
-    assert(out == '\n * a-long-name About time.\n\n * bob         Short description.\n\n')
+    def f():
+        ''' Short description.
+        Log description starts here
+        '''
+
+    cmd = Command(f)
+    err = CmdError(cmd=cmd, errors=[Line('bad')])
+    o,p = printer(color=False, ascii=True)
+    p.pretty(err)
+    print(o.getvalue())
+    assert(o.getvalue() == '''
+ * a-long-name About time.
+
+ * bob         bobby
+---
+
+Short description.
+
+Log description starts here
+
+-[ CmdError ]-
+
+ * bad
+
+''')
 
 
 @pytest.mark.xfail(reason='Not implemented')

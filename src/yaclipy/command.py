@@ -1,9 +1,9 @@
 import sys, inspect
 from inspect import Parameter
-from print_ext import print, Flex, pretty
+from print_ext import print, Text, pretty
 from functools import partial
 from .arg_spec import ArgSpec, sig_kinds, func_name
-from .exceptions import AmbiguousCommand, CommandNotFound, CallError, CallHelpError
+from .exceptions import AmbiguousCommand, CommandNotFound, CallError, CmdHelp
 from .docs import CmdDoc
 
 
@@ -17,16 +17,18 @@ def sub_cmds(*args, **kwargs):
     If the subcommand is specified as a keyword parameter then the name is used as an alias to the function.
     '''
     def _f(fn):
-        fn._sub_cmds = {func_name(f):CmdDfn(func_name(f), f) for f in args}
-        fn._sub_cmds.update({k:CmdDfn(k, f) for k,f in kwargs.items()})
+        fn._sub_cmds = {cmd.real_name:cmd for cmd in [Command(fn) for fn in args]}
+        fn._sub_cmds.update({name:Command(fn,name) for name,fn in kwargs.items()})
         return fn
     return _f
 
 
 
-class CmdDfn():
+class Command():
 
-    def __init__(self, name, fn, method=False):
+    def __init__(self, fn, name=None, method=False):
+        if name == None: name = func_name(fn)
+        self.real_name = name
         self.name = (name[:-1] if name[-1]=='_' else name).replace('_','-')
         self.fn = fn
         self.next_cmd = None
@@ -47,7 +49,7 @@ class CmdDfn():
     def __call__(self, argv):
         argv = list(argv)
         self.run_spec = self.argspec(argv)
-        if '' in self.run_spec.kwargs: raise CallHelpError(cmd=self)
+        if '' in self.run_spec.kwargs: raise CmdHelp(cmd=self)
         cmds = self.sub_cmds()
         if argv and not cmds:
             self.run_spec.error('UNUSED', f"Unused trailing parameters: \b1 {argv!r}")
@@ -56,13 +58,20 @@ class CmdDfn():
         # Lookup sub-command
         cmd_name = argv[0].replace('_','-')
         cmds = {name:dfn for name, dfn in cmds.items() if dfn.name.startswith(cmd_name)}
-        if not cmds: raise CommandNotFound(cmd=self, name=cmd_name)
-        if len(cmds) > 1: raise AmbiguousCommand(cmd=self, name=cmd_name, choices=cmds)
+        if not cmds:
+            raise CommandNotFound(cmd=self, errors = [
+                Line(f"Command not found: \b1 {cmd_name}"),
+                Line("Valid commands are listed above."),
+            ])
+        if len(cmds) > 1:
+            raise AmbiguousCommand(cmd=self, errors = [
+                Line(f"Ambiguous \b1 {cmd_name}\b  matched multiple commands: ", ', '.join(f'\b1 {x}\b ' for x in cmds))
+            ])
         self.next_cmd = next(iter(cmds.values()))(argv[1:])
         return self
 
 
-    def run(self, input):
+    def run(self, input=None):
         spec = self.run_spec
         args = list(spec.args)
         kwargs = dict(spec.kwargs)
@@ -109,7 +118,7 @@ class CmdDfn():
 
 
     def pretty(self):
-        f = Flex(f"CmdDfn({self.name!r})\v", pretty(self.run_spec or self.argspec))
+        f = Text(f"Command({self.name!r})\v", pretty(self.run_spec or self.argspec))
         for sub in self.sub_cmds().values():
             f('\v  * ',sub.name)
         return f
@@ -119,6 +128,6 @@ class CmdDfn():
         if hasattr(self.fn, '_sub_cmds'): return self.fn._sub_cmds
         retval = self.argspec.retval
         if retval == Parameter.empty: return {}
-        dfns = {name:CmdDfn(name, getattr(retval,name)) for name in dir(retval) if not name.startswith('_')}
+        dfns = {name:Command(getattr(retval,name), name) for name in dir(retval) if not name.startswith('_')}
         return {name:dfn for name,dfn in dfns.items() if dfn}
 

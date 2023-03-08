@@ -201,9 +201,10 @@ class ArgSpec():
         if a == 'self' and (param.index != 1 or param.name != 'self'):
             raise UsageError(self.fn, f"Invalid parameter \b1 {param.name}\b .\v\b1 self\b  is reserved.")
         if a in self.alias:
+            prev = self.alias[a]
             if a in ['h','help']:
-                raise UsageError(self.fn, f"Invalid parameter \b1 {param.name}\b.  The alias \b1 {a}\b  is reserved for the help flag.")
-            raise UsageError(self.fn, f"Argument '\b1 {a!r}\b  was defined multiple times.")  
+                raise UsageError(self.fn, f"Invalid parameter \b1 {prev.name}\b .  The alias \b1 {a}\b  is reserved for the help flag.")
+            raise UsageError(self.fn, f"Argument \b1 {a}\b  was defined multiple times. \b2 {prev.name} {param.name} ")  
         self.alias[a] = param
 
 
@@ -239,9 +240,6 @@ class ArgSpec():
         if '**' not in self.kinds and self.unknown:
             for param in sorted(self.unknown, key=lambda x: x.name):
                 self.error('UNK_PARAM', f"Unknown parameter: \b1 {dashed(param.name)}\b2  {param.value!r}")
-        # Abort if errors
-        if self.errors:
-            self.error('HELP', 'Run with \b1 -h\b  or \b1 --help\b  to see documentation for this command.')
         # Build args, kwargs
         self.args, self.kwargs = [], {}
         for p in self.params.values():

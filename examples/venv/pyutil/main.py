@@ -1,5 +1,6 @@
-import logging
-from yaclipy import sub_cmds
+import logging, yaml, time
+from print_ext import print
+import yaclipy as CLI
 
 log = logging.getLogger('clipy-main')
 
@@ -16,7 +17,12 @@ def build():
     ''' Build the project
     '''
     log.info('Building...')
-    
+    p = print.progress(steps=42)
+    for f in range(42):
+        p('Process \b2$', f, '\b$ ...')
+        time.sleep(0.1)
+    p('Done!', done=True)
+
 
     
 def deploy():
@@ -26,7 +32,7 @@ def deploy():
 
 
 
-@sub_cmds(run, build, deploy)
+@CLI.sub_cmds(run, build, deploy)
 def main(*, verbose__v=False, quiet__q=False, target__t=''):
     ''' This is the sole entrypoint for this project.
     

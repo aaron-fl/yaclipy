@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import sys
-from yaclipy import boot
+from print_ext import print, PrettyException
+import yaclipy as CLI
 
-def foo(say, times__t=1) -> str:
+def main(say, times__t=1) -> str:
     ''' Say something multiple times
 
     Parameters:
@@ -13,5 +14,9 @@ def foo(say, times__t=1) -> str:
     '''
     return ' '.join([say] * times__t)
 
+
 if __name__ == '__main__':
-    boot(foo, sys.argv[1:])
+    try:
+        CLI.Command(main)(sys.argv[1:]).run()
+    except PrettyException as e:
+        print.pretty(e)

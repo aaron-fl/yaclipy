@@ -1,5 +1,5 @@
 import pytest
-from yaclipy import CmdDfn, sub_cmds
+from yaclipy import sub_cmds
 from .testutil import exe
 from yaclipy.arg_spec import sig_kinds
 

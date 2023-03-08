@@ -1,5 +1,4 @@
-from print_ext import print, Table, pretty, Flex
-from print_ext.borders import Borders
+from print_ext import print, Table, pretty, Text
 from docstring_parser import parse as docstring_parse
 
 
@@ -15,20 +14,10 @@ class CmdDoc():
         return self.doc.short_description
 
     def pretty_full(self):
-        f = Flex()
-        f(self.doc.short_description)
-        if self.doc.long_description: f('\v', self.doc.long_description,'\v')
-        for p in self.doc.params:
-            f(pretty(p))
+        f = Text()
+        if self.doc.short_description: f('\bem$',self.doc.short_description,'\v\v')
+        if self.doc.long_description: f(self.doc.long_description,'\v')
         return f
 
 
 
-def short_cmd_list(cmds):
-    tbl = Table(0.0, 0.0, 1, tmpl='')
-    tbl.cell('ALL', cls=Borders, border=(' ','m:1010'))
-    tbl.cell('C1', style='1')
-    tbl.cell('R-1', border='m:1110')
-    for cmd in sorted(cmds.values(), key=lambda x: x.name):
-        tbl('*\t', cmd.name,'\t', pretty(cmd.doc(), fmt='short'),'\t')
-    return tbl

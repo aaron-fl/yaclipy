@@ -1,7 +1,8 @@
 import pytest
 from yaclipy import sub_cmds
-from yaclipy.exceptions import CallHelpError
+from yaclipy.exceptions import CmdError
 from .testutil import exe
+
 
 def foo(say, times__t=1) -> str:
     ''' Say something multiple times
@@ -57,7 +58,7 @@ def test_subcmds():
     def root(*, verbose__v=False):
         return dict(name='jim', _value = 'hi' * int(verbose__v))
 
-    with pytest.raises(CallHelpError):
+    with pytest.raises(CmdError):
         exe(root, '-v foo -h') == ('foo', 'jim', 'hi')
     assert(exe(root, '-vv baz --name bob') == ('bar', 'bob', 'hihi'))
 

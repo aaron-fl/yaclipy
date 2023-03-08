@@ -23,8 +23,14 @@ if sys.prefix == sys.base_prefix: # Not in the virtual env
         abort("Couldn't install yaclipy into the virtual environment")
     os.execvp('python', ['python', './cli.py'] + sys.argv[1:])
 
-# Now we are running in the virtual environment.  Turn control over to yaclipy
-from yaclipy import ensure_requirements, boot
-ensure_requirements(req=REQ, venv=VENV_DIR)
-from pyutil.main import main
-boot(main, sys.argv[1:])
+# Now we are running in the virtual environment.
+# Install REQ requirements and run the main command.
+import yaclipy as CLI
+from print_ext import print, PrettyException
+
+try:
+    CLI.ensure_requirements(req=REQ, venv=VENV_DIR)
+    from pyutil.main import main
+    CLI.Command(main)(sys.argv[1:]).run()
+except PrettyException as e:
+    print.pretty(e)

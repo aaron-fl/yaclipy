@@ -26,9 +26,10 @@ Given the following file named `cli.py`:
 
     #!/usr/bin/env python
     import sys
-    from yaclipy import boot
+    from print_ext import print, PrettyException
+    import yaclipy as CLI
 
-    def foo(say, times__t=1) -> str:
+    def main(say, times__t=1) -> str:
         ''' Say something multiple times
 
         Parameters:
@@ -40,7 +41,11 @@ Given the following file named `cli.py`:
         return ' '.join([say] * times__t)
 
     if __name__ == '__main__':
-        boot(foo, sys.argv[1:])
+        try:
+            CLI.Command(main)(sys.argv[1:]).run()
+        except PrettyException as e:
+            print.pretty(e)
+
 
 Given that the file is executable ``chmod +x cli.py``, you can use it as follows.
 

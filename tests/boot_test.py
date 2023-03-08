@@ -1,6 +1,5 @@
 import pytest
 from yaclipy.exceptions import *
-from yaclipy.cmd_dfn import CmdDfn
 
 
 @pytest.mark.xfail(reason='Not implemented')

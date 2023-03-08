@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 import sys
-from yaclipy import boot, sub_cmds
+from print_ext import print, PrettyException
+import yaclipy as CLI
 
 
 def donkey(*, _say, name__n="Gordon") -> str:
     ''' Donkey Donkey
     '''
-    return f'{name__n} says, "{_say}"'
+    return f'{name__n} says, \b1 "{_say}"'
 
 
 def dog(*, _say, times__t=3) -> str:
@@ -15,19 +16,20 @@ def dog(*, _say, times__t=3) -> str:
     return _say + ' bark!'*times__t
 
 
-@sub_cmds(dog, donkey)
+@CLI.sub_cmds(dog, donkey)
 def main(say, /, *, verbose__v=False):
     ''' Say stuff
 
-    Examples:
-        $ ./sub.py "Hello world" -vv donkey
+    $ ./sub.py "Hello world" -vv donkey
 
     '''
-    if verbose__v: print("Ready? "*int(verbose__v))
+    if verbose__v: print("\b2 Ready? "*int(verbose__v))
     yield dict(_say=say)
-    if verbose__v: print("Bye")
+    if verbose__v: print("\bdem Bye")
 
 
-if __name__=='__main__':
-    boot(main, sys.argv[1:])
-
+if __name__ == '__main__':
+    try:
+        CLI.Command(main)(sys.argv[1:]).run()
+    except PrettyException as e:
+        print.pretty(e)

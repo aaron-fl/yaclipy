@@ -1,66 +1,57 @@
-from print_ext import print
-from yaclipy.cmd_dfn import CmdDfn, sub_cmds
-from yaclipy.exceptions import CallError
+import io
+from print_ext import print, Printer, PrettyException
+from yaclipy import Command, sub_cmds
 from yaclipy.arg_spec import ArgSpec
 
-DEBUG = True # Show more verbose info
+DEBUG = False # Show more verbose info
 
 def _to_args(v):
     if not v: return []
     if isinstance(v, str): return v.split(' ')
     return v
 
+
+
 def bind(fn, args):
     try:
-        cmd = CmdDfn('main', fn)
+        cmd = Command(fn)
         cmd(_to_args(args))
         if DEBUG:
             print('--------- cmd.run_spec -----------')
             print.pretty(cmd.run_spec)
             print.pretty(cmd.run_spec.argv)
         return cmd.run_spec.args, [(k,cmd.run_spec.kwargs[k]) for k in sorted(cmd.run_spec.kwargs)]
-    except Exception as e:
-        print(f'\v---------- {e} --------------\v')
-        for k,v in e.__dict__.items():
-            print(f'\v\berr {k}\v')
-            print.pretty(v)
+    except PrettyException as e:
+        if DEBUG: print.pretty(e)
         raise e
     
 
 
 def bind_unused(fn, args):
     try:
-        cmd = CmdDfn('main', fn)
+        cmd = Command(fn)
         cmd(_to_args(args))
         if DEBUG:
             print('--------- cmd.run_spec -----------')
             print.pretty(cmd.run_spec)
             print.pretty(cmd.run_spec.argv)
         return []
-    except Exception as e:
-        if DEBUG:
-            print(f'\v---------- {e} --------------\v')
-            for k,v in e.__dict__.items():
-                print(f'\v\berr {k}\v')
-                print.pretty(v)
-        return cmd.run_spec.argv
+    except PrettyException as e:
+        if DEBUG: print.pretty(e)
+        return e.cmd.run_spec.argv
 
 
 
 def bind_err(fn, args):
     try:
-        cmd = CmdDfn('main', fn)(_to_args(args))
+        cmd = Command(fn)(_to_args(args))
         if DEBUG:
             print('--------- cmd.run_spec -----------')
             print.pretty(cmd.run_spec)
             print.pretty(cmd.run_spec.argv)
         return set()
-    except Exception as e:
-        if DEBUG:
-            print(f'\v---------- {e} --------------\v')
-            for k,v in e.__dict__.items():
-                print(f'\v\berr {k}\v')
-                print.pretty(v)
+    except PrettyException as e:
+        if DEBUG: print.pretty(e)
         errs = {}
         if hasattr(e, 'cmd'):
             for e in e.cmd.run_spec.errors:
@@ -73,12 +64,15 @@ def bind_err(fn, args):
 
 def exe(fn, args, **incoming):
     try:
-        cmd = CmdDfn('main', fn)(_to_args(args))
+        cmd = Command(fn)(_to_args(args))
         return cmd.run(incoming)        
-    except Exception as e:
-        if DEBUG:
-            print(f'\v---------- {e} --------------\v')
-            for k,v in e.__dict__.items():
-                print(f'\v\berr {k}\v')
-                print.pretty(v)
+    except PrettyException as e:
+        if DEBUG: print.pretty(e)
         raise e
+
+
+def printer(**kwargs):
+    o = io.StringIO()
+    p = Printer(stream=o, **kwargs)
+    return o,p
+   
