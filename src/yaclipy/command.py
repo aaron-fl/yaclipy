@@ -1,6 +1,6 @@
 import sys, inspect
 from inspect import Parameter
-from print_ext import print, Text, pretty
+from print_ext import print, Text, pretty, Line
 from functools import partial
 from .arg_spec import ArgSpec, sig_kinds, func_name
 from .exceptions import AmbiguousCommand, CommandNotFound, CallError, CmdHelp

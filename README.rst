@@ -55,7 +55,7 @@ Given that the file is executable ``chmod +x cli.py``, you can use it as follows
    <doc string>
 
 Using ``-h`` or ``--help`` will show the docstring documentation, along with a list of possible sub-commands.
-Sub-commands are determined explicitly with the ``@sub_cmds`` decoration, or by the return type annotation.
+Sub-commands are determined explicitly with the ``sub_cmds`` decorator, or by the return type annotation.
 
 .. code-block:: console
 
@@ -192,13 +192,13 @@ Sub-Commands
 
 .. code-block:: python
 
-    from yaclipy import sub_cmds
+    import yaclipy as CLI
 
     def foo(*, name, _value): pass
 
     def bar(*, name, _value): pass
 
-    @sub_cmds(foo, baz=bar)
+    @CLI.sub_cmds(foo, baz=bar)
     def root(*, verbose__v=False):
         return dict(name='jim', _value = 'hi' * int(verbose__v))
 
@@ -206,7 +206,7 @@ Sub-Commands
     # root -v baz --name bob
 
 Commands can be chained together.
-The sub-commands available are known deterministically, either explicitly with the ``@sub_cmds`` decorator, or implicitly from the return type annotation.
+The sub-commands available are known deterministically, either explicitly with the ``sub_cmds`` decorator, or implicitly from the return type annotation.
 
 The complete chain of commands is fully parsed before any commands are actually executed.
 By making the sub-command lookup deterministic we can provide better help and documentation support.
@@ -231,7 +231,7 @@ Generators
         x, xxx = _input
         print(f'3^{x} == {xxx}')
 
-    @sub_cmds(show)
+    @CLI.sub_cmds(show)
     def foo(*, times__t=3):
         for i in range(times__t):
             yield i, pow(3,i)

@@ -1,6 +1,7 @@
 import pytest
 from print_ext import print
 from yaclipy import Command, sub_cmds
+from yaclipy.command import CommandNotFound
 from yaclipy.exceptions import *
 from .testutil import exe
 
@@ -44,3 +45,10 @@ def test_cmd_sub_cmds():
     def f(): pass
     subs = Command(f).sub_cmds()
     assert(subs.keys() == {'str', 'if_', 'bob_cob'})
+
+
+def test_CommandNotFound():
+    @sub_cmds(tst=test_CommandNotFound)
+    def f(): pass
+    with pytest.raises(CommandNotFound):
+        Command(f)(['toss'])
