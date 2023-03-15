@@ -19,6 +19,9 @@ def test_CmdError_pretty():
     def f():
         ''' Short description.
         Log description starts here
+
+
+
         '''
 
     cmd = Command(f)
@@ -30,6 +33,7 @@ def test_CmdError_pretty():
  * a-long-name About time.
 
  * bob         bobby
+
 ---
 
 Short description.
@@ -39,7 +43,6 @@ Log description starts here
 -[ CmdError ]-
 
  * bad
-
 ''')
 
 

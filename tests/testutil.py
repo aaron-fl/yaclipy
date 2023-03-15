@@ -1,5 +1,5 @@
 import io
-from print_ext import print, Printer, PrettyException
+from print_ext import print, Flattener, PrettyException
 from yaclipy import Command, sub_cmds
 from yaclipy.arg_spec import ArgSpec
 
@@ -73,6 +73,6 @@ def exe(fn, args, **incoming):
 
 def printer(**kwargs):
     o = io.StringIO()
-    p = Printer(stream=o, **kwargs)
+    p = Flattener(stream=o, **kwargs)
     return o,p
    

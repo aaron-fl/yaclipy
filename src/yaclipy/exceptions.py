@@ -1,12 +1,12 @@
 import sys, os, inspect
-from print_ext import pretty, Table, HR, Text, PrettyException, Bdr
+from print_ext import pretty, Table, Printer, PrettyException, Bdr
 
 
 class CmdError(PrettyException):
         
     def pretty_help(self):
         cmd = self.cmd
-        h = Text()
+        p = Printer()
         tbl = Table(0.0, 0.0, 1, tmpl='')
         tbl.cell('ALL', cls=Bdr, border=(' ','m:1010'))
         #tbl.cell('R-1', border=('m:1010'))
@@ -15,18 +15,18 @@ class CmdError(PrettyException):
         #tbl.cell('R-1', border='m:1110')
         for cmd in sorted(self.cmd.sub_cmds().values(), key=lambda x: x.name):
             tbl('*\t', cmd.name,'\t', pretty(cmd.doc(), fmt='short'),'\t')
-        h(tbl)
-        if tbl: h('\v',HR(),'\v')
-        h('\v', pretty(self.cmd.doc()), '\v')
-        return h
+        p(tbl)
+        if tbl: p.hr(pad=1)
+        p.pretty(self.cmd.doc(), pad=1)
+        return p
 
 
     def pretty(self, **kwargs):
-        h = self.pretty_help()
-        h(HR(self.__class__.__name__, style='err'), '\v\v')
+        p = self.pretty_help()
+        p.hr(self.__class__.__name__, style='err', pad=1)
         for err in self.errors:
-            h(' \berr * ', err, '\v')
-        return h
+            p(' \berr * ', err)
+        return p
 
 
 class CmdHelp(CmdError):
@@ -50,6 +50,6 @@ class UsageError(PrettyException):
 
     def pretty(self):
         lines, lno = inspect.getsourcelines(self.fn)
-        t = Text('\v',lines[0],'\v')
-        t('\b2$', os.path.relpath(inspect.getsourcefile(self.fn)), f'\bdem :{lno}\v')
-        return t('\v', *self.msg,'\v')
+        p = Printer(lines[0])
+        p('\b2$', os.path.relpath(inspect.getsourcefile(self.fn)), f'\bdem :{lno}')
+        return p(*self.msg, pad=1)
