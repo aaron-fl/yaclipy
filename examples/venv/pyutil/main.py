@@ -1,6 +1,6 @@
 import logging, yaml, time
 from print_ext import print
-import yaclipy as CLI
+from yaclipy import sub_cmds, Config
 
 log = logging.getLogger('clipy-main')
 
@@ -31,9 +31,14 @@ def deploy():
     log.info('Deploying...')
 
 
+def configuration():
+    ''' Show the current configuration.
+    '''
+    return Config
 
-@CLI.sub_cmds(run, build, deploy)
-def main(*, verbose__v=False, quiet__q=False, target__t=''):
+
+@sub_cmds(run, build, deploy, configuration)
+def main(*, verbose__v=False, quiet__q=False, config__c=''):
     ''' This is the sole entrypoint for this project.
     
     Parameters:
@@ -41,6 +46,10 @@ def main(*, verbose__v=False, quiet__q=False, target__t=''):
             Increase the logging level by one notch
         --quiet, -q
             Decrease the logging level by one notch
+        --config <option>, -c <option> | default='dev'
+            Choose a configuration option
     '''
     level = max(0, min(50, 20 - 10*(int(verbose__v) - int(quiet__q))))
     logging.basicConfig(style='{', format='{levelname:>7} {name:>10} {lineno:<3} | {message}', level=level)
+    import config
+    Config.configure(config__c or 'dev')

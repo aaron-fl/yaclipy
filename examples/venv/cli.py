@@ -19,7 +19,7 @@ if sys.prefix == sys.base_prefix: # Not in the virtual env
     if new and call(['python3', '-m','venv',VENV_DIR]):
         abort("Couldn't create python3 virtual environment at", VENV_DIR)
     os.environ['PATH'] = join(VENV_DIR,'bin') + os.pathsep + os.environ['PATH']
-    if new and call(['python', '-m', 'pip', 'install', 'yaclipy']):
+    if new and call(['python', '-m', 'pip', 'install', '-e' '../..']):
         abort("Couldn't install yaclipy into the virtual environment")
     os.execvp('python', ['python', './cli.py'] + sys.argv[1:])
 

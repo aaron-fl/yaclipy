@@ -287,7 +287,7 @@ JSON
         x == {'x':[1,2,3]}
         y == None
 
-A parameter of type ``dict`` is parsed as json.  It may not parse to a dict.
+A parameter of type ``dict`` is parsed as json.  It may, or may not parse to a dict.
 
 
 
@@ -338,6 +338,58 @@ The rules for capturing arbitrary key-values are as follows.
 * Otherwise, assume a ``str`` if the argument appears once, otherwise ``[str]``
 
 A single dash can be used to stop taking keyword arguments and go to the next command.
+
+
+
+Config
+======
+
+Often programs need configuration values that can be set for a specific user's environment, or to configure environments such production or test.
+
+The Config system of yaclipy uses the standard python import system for namespacing.
+`ConfigVar` objects are declared with ``Config.var()``. 
+
+.. code-block:: python
+    
+    answer = Config.var("The answer to everything.", 42)
+    speech = Config.var("What does the leader say?", "I declare that...")
+    a, b = Config.var(), Config.var() # These names will not be 'a' and 'b'.  They will be 'unk'.
+
+The variable name is grepped from the stacktrace, so anything other than ``var = Config.var()`` will result in a name being "unk".
+
+When a variable needs be used, or set it can be brought into scope in the usual way and then read ``a()`` or set ``a("Hello World")``.
+
+Config vars should only be set from special ``@Config.option()`` decorated functions.  This creates a ``ConfigOption`` class that can configure all of the necessary variables for a specific application environment or purpose.
+
+.. code-block:: python
+
+    @Config.option()
+    def one():
+        answer(1)
+        speech("I am the one")
+
+    @Config.option()
+    def two():
+        answer(2)
+        speech("I am not the one")
+
+This creates two different configuration options.
+Use ``Config.configure('one')`` to execute the ``one()`` option and set the corresponding config vars.
+
+Additional config files can be imported in the usual way from your main ``config.py`` root file.
+``with Config.include: import local.config`` can be used for optional, possibly non-existent modules.
+
+In these local config modules it is common to want to override and existing option.
+
+.. code-block:: python
+
+    # local/config.py
+    import config
+
+    @config.two.override()
+    def two(super):
+        super() # This is the old two() function
+        answer(-answer())
 
 
 

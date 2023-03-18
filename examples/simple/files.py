@@ -22,4 +22,4 @@ if __name__ == '__main__':
     try:
         CLI.Command(main)(sys.argv[1:]).run(os.path.basename(sys.argv[0]))
     except PrettyException as e:
-        print.pretty(e)
+        print.pretty(e, pad=1)

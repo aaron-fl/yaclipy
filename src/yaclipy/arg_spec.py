@@ -1,6 +1,6 @@
 import inspect, os, copy, json, re
 from inspect import Parameter
-from print_ext import print, Table, pretty, Line, Flex
+from print_ext import print, Table, pretty, Line, Printer
 from .exceptions import UsageError
 
 INFINITY = 1000000000000
@@ -348,20 +348,22 @@ class ArgSpec():
         return arg
 
 
-    def pretty(self):
+    def __pretty__(self, *, _depth, depth, **kwargs):
+        p = Printer()
+        p(f"\b1 {func_name(self.fn,'__qualname__')}[\b2 {' '.join(self.kinds)}\b ]\b3 {self.args or '()'}{self.kwargs or '{}'}")
         tbl = Table(0,0,0,0,0)
         tbl.cell("C0", just='>')
         tbl.cell("C1", style='1', just='>')
         tbl.cell("R0", style='w!')
-        tbl('Aliases\t', 'Name\t', 'Pos\t', 'Type\t', 'Default\t')
-        for p in self.params.values():
-            if p.name=='': continue # Skip help
-            tbl(' '.join(sorted(p.aliases)) if p.aliases else ' ', '\t')
-            tbl(p.name, '\t')
-            tbl(p.index or ' ', '\t')
-            tbl(p.type, '\t')
-            tbl(pretty('\br *req*' if p.default == Parameter.empty else p.default), '\t')
-        f = Flex(f"\b1 {func_name(self.fn,'__qualname__')}[\b2 {' '.join(self.kinds)}\b ]\b3 {self.args or '()'}{self.kwargs or '{}'}\v", tbl)
+        tbl('Aliases\tName\tPos\tType\tDefault\t')
+        for v in self.params.values():
+            if v.name=='': continue # Skip help
+            tbl(' '.join(sorted(v.aliases)) if v.aliases else ' ', '\t')
+            tbl(v.name, '\t')
+            tbl(v.index or ' ', '\t')
+            tbl(v.type, '\t')
+            tbl(pretty('\br *req*' if v.default == Parameter.empty else v.default, _depth=_depth+1, depth=depth-1, **kwargs), '\t')
+        p(tbl)
         for e in self.errors:
-            f('\v',e[1])
-        return f
+            p(e[1])
+        return p

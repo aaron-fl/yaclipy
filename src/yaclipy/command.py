@@ -1,6 +1,6 @@
 import sys, inspect
 from inspect import Parameter
-from print_ext import print, Text, pretty, Line
+from print_ext import print, Line
 from functools import partial
 from .arg_spec import ArgSpec, sig_kinds, func_name
 from .exceptions import AmbiguousCommand, CommandNotFound, CallError, CmdHelp
@@ -117,11 +117,13 @@ class Command():
         return self._doc
 
 
-    def pretty(self):
-        f = Text(f"Command({self.name!r})\v", pretty(self.run_spec or self.argspec))
+    def __pretty__(self, **kwargs):
+        p = Printer()
+        p(f"Command({self.name!r})")
+        p.pretty(self.run_spec or self.argspec)
         for sub in self.sub_cmds().values():
-            f('\v  * ',sub.name)
-        return f
+            p(' * ',sub.name)
+        return p
 
 
     def sub_cmds(self):

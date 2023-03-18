@@ -21,7 +21,7 @@ class CmdError(PrettyException):
         return p
 
 
-    def pretty(self, **kwargs):
+    def __pretty__(self, **kwargs):
         p = self.pretty_help()
         p.hr(self.__class__.__name__, style='err', pad=1)
         for err in self.errors:
@@ -29,14 +29,20 @@ class CmdError(PrettyException):
         return p
 
 
+
 class CmdHelp(CmdError):
-    def pretty(self, **kwargs):
+    def __pretty__(self, **kwargs):
         return self.pretty_help()
+
 
 
 class CommandNotFound(CmdError): pass
 
+
+
 class AmbiguousCommand(CmdError): pass
+
+
 
 class CallError(CmdError):
     def __init__(self, cmd):
@@ -44,11 +50,12 @@ class CallError(CmdError):
         self.errors = [e[1] for e in cmd.run_spec.errors] if cmd.run_spec else []
 
 
+
 class UsageError(PrettyException):
     def __init__(self, fn, *msg):
         super().__init__(msg=msg, fn=fn)
 
-    def pretty(self):
+    def __pretty__(self, **kwargs):
         lines, lno = inspect.getsourcelines(self.fn)
         p = Printer(lines[0])
         p('\b2$', os.path.relpath(inspect.getsourcefile(self.fn)), f'\bdem :{lno}')
