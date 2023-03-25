@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from print_ext import print, PrettyException
+from print_ext import Printer, PrettyException
 import yaclipy as CLI
 
 
@@ -23,13 +23,14 @@ def main(say, /, *, verbose__v=False):
     $ ./sub.py "Hello world" -vv donkey
 
     '''
-    if verbose__v: print("\b2 Ready? "*int(verbose__v))
+    print = Printer.replace(filter=lambda t: t.get('v',0) <= int(verbose__v))
+    print('\b2$', ' Ready?'*int(verbose__v), tag='v:1')
     yield dict(_say=say)
-    if verbose__v: print("\bdem Bye")
+    print("\b_ Bye")
 
 
 if __name__ == '__main__':
     try:
         CLI.Command(main)(sys.argv[1:]).run()
     except PrettyException as e:
-        print.pretty(e, pad=1)
+        Printer().pretty(e)

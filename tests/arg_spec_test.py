@@ -1,5 +1,5 @@
 import pytest
-from print_ext import print
+from print_ext import Printer
 from yaclipy.arg_spec import ArgSpec, ArgType
 from yaclipy.exceptions import UsageError
 
@@ -7,7 +7,7 @@ from yaclipy.exceptions import UsageError
 def test_underscore_args():
     def f(help, h, /, cat__c, *, dog__d, _dont__show): pass
     spec = ArgSpec(f)
-    print.pretty(spec)
+    Printer().pretty(spec)
     names = set()
     for p in spec.params.values():
         names.update(p.aliases)

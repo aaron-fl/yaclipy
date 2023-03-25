@@ -1,6 +1,6 @@
 import re
 from inspect import Parameter
-from print_ext import print
+from print_ext import Printer
 from yaclipy.arg_spec import ArgSpec
 from .testutil import bind, bind_err, bind_unused
 
@@ -17,7 +17,7 @@ def _tsterr(spec, args, *errs):
         return True
     errors = [e for e in s.errors[:-1] if not _match(e)]
     for e in errors:
-        print(e)
+        Printer(e)
     assert(matched == errs)
 
 

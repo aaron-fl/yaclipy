@@ -1,55 +1,51 @@
-import logging, yaml, time
-from print_ext import print
-from yaclipy import sub_cmds, Config
-
-log = logging.getLogger('clipy-main')
+import yaml, time, pathlib, asyncio
+from print_ext import Printer
+import yaclipy as CLI
+import config
 
 def run():
     ''' Run the project
     '''
-    log.info('Running...')
-    log.warn('Uh-oh')
-    log.debug('Fixing stuff')
+    print = Printer('Running...', config.title())
+    print('Uh-oh', tag='v:-1')
+    print('Fixing stuff', tag='v:1')
 
 
 
-def build():
+async def build():
     ''' Build the project
     '''
-    log.info('Building...')
-    p = print.progress(steps=42)
-    for f in range(42):
-        p('Process \b2$', f, '\b$ ...')
-        time.sleep(0.1)
-    p('Done!', done=True)
+    files = list(pathlib.Path('.').iterdir())
+    with Printer().progress('Building...', config.prefix()) as update:  
+        for i, fname in enumerate(files):
+            update('Process \b2$', fname, '\b$ ...', tag={'progress':(i, len(files))})
+            await asyncio.sleep(0.5)
+    update('Done!', tag='progress:100')
 
 
-    
+
 def deploy():
     ''' Deploy the project
     '''
-    log.info('Deploying...')
+    Printer('Deploying...', config.prefix())
 
 
-def configuration():
-    ''' Show the current configuration.
-    '''
-    return Config
 
-
-@sub_cmds(run, build, deploy, configuration)
+@CLI.sub_cmds(run, build, deploy)
 def main(*, verbose__v=False, quiet__q=False, config__c=''):
     ''' This is the sole entrypoint for this project.
     
     Parameters:
         --verbose, -v
-            Increase the logging level by one notch
+            Increase the verbosity filter by one notch
         --quiet, -q
-            Decrease the logging level by one notch
+            Decrease the verbosity filter by one notch
         --config <option>, -c <option> | default='dev'
             Choose a configuration option
     '''
-    level = max(0, min(50, 20 - 10*(int(verbose__v) - int(quiet__q))))
-    logging.basicConfig(style='{', format='{levelname:>7} {name:>10} {lineno:<3} | {message}', level=level)
+    v = int(verbose__v) - int(quiet__q)
+    Printer.replace(filter=lambda t: t.get('v',0) <= v)
     import config
-    Config.configure(config__c or 'dev')
+    cfg = CLI.get_config()
+    cfg[config__c or 'dev'].fn()
+    return cfg

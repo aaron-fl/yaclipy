@@ -1,6 +1,6 @@
-import sys, inspect
+import sys, inspect, asyncio
 from inspect import Parameter
-from print_ext import print, Line
+from print_ext import Printer, Line
 from functools import partial
 from .arg_spec import ArgSpec, sig_kinds, func_name
 from .exceptions import AmbiguousCommand, CommandNotFound, CallError, CmdHelp
@@ -71,7 +71,7 @@ class Command():
         return self
 
 
-    def run(self, input=None):
+    async def _run(self, input=None):
         spec = self.run_spec
         args = list(spec.args)
         kwargs = dict(spec.kwargs)
@@ -97,18 +97,31 @@ class Command():
             if p.name not in kwargs: raise TypeError(f"No value supplied for {p.ordinal} positional parameter '{p.name}'")
             args[p.index-1] = kwargs.pop(p.name)
         # Make the call
+        #print(f"CALL {self.name} -- {spec.kinds}")
         val = self.fn(*args, **kwargs)
         if 'generatorfunction' in spec.kinds:
-            return [self._call_next(y) for y in val]
+            return [await self._call_next(y) for y in val]
+        elif 'coroutinefunction' in spec.kinds:
+            return await self._call_next(await val)
+        elif 'asyncgenfunction' in spec.kinds:
+            return [await self._call_next(y) async for y in val]
         else:
-            return self._call_next(val)
+            return await self._call_next(val)
         
 
-    def _call_next(self, val):
+    async def _call_next(self, val):
         if self.next_cmd == None:
-            if val != None: print.pretty(val)
+            if val != None: Printer().pretty(val)
             return val
-        return self.next_cmd.run(val)
+        return await self.next_cmd._run(val)
+
+
+    def run(self, input=None):
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(self._run(input))
+        task = loop.create_task(self._run(input), name=self.name)
 
 
     def doc(self, check=False):
@@ -117,13 +130,11 @@ class Command():
         return self._doc
 
 
-    def __pretty__(self, **kwargs):
-        p = Printer()
-        p(f"Command({self.name!r})")
-        p.pretty(self.run_spec or self.argspec)
+    def __pretty__(self, print, **kwargs):
+        print(f"Command({self.name!r})")
+        print.pretty(self.run_spec or self.argspec)
         for sub in self.sub_cmds().values():
-            p(' * ',sub.name)
-        return p
+            print(' * ',sub.name)
 
 
     def sub_cmds(self):

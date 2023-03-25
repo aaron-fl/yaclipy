@@ -19,18 +19,18 @@ if sys.prefix == sys.base_prefix: # Not in the virtual env
     if new and call(['python3', '-m','venv',VENV_DIR]):
         abort("Couldn't create python3 virtual environment at", VENV_DIR)
     os.environ['PATH'] = join(VENV_DIR,'bin') + os.pathsep + os.environ['PATH']
-    if new and call(['python', '-m', 'pip', 'install', '-e' '../..']):
+    if new and call(['python', '-m', 'pip', 'install', '-e', '../..']):
         abort("Couldn't install yaclipy into the virtual environment")
     os.execvp('python', ['python', './cli.py'] + sys.argv[1:])
 
 # Now we are running in the virtual environment.
 # Install REQ requirements and run the main command.
 import yaclipy as CLI
-from print_ext import print, PrettyException
+from print_ext import Printer, PrettyException
 
 try:
     CLI.ensure_requirements(req=REQ, venv=VENV_DIR)
     from pyutil.main import main
     CLI.Command(main)(sys.argv[1:]).run()
 except PrettyException as e:
-    print.pretty(e, pad=1)
+    Printer().pretty(e)

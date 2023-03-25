@@ -8,16 +8,14 @@ class CmdDoc():
         self.doc = docstring_parse(doc)
 
 
-    def __pretty__(self, fmt='full', **kwargs):
-        return getattr(self, f'pretty_{fmt}')()
+    def __pretty__(self, print, fmt='full', **kwargs):
+        getattr(self, f'pretty_{fmt}')(print)
 
 
-    def pretty_short(self):
-        return self.doc.short_description
+    def pretty_short(self, print):
+        print(self.doc.short_description)
 
 
-    def pretty_full(self):
-        p = Printer()
-        if self.doc.short_description: p('\bem$',self.doc.short_description, pad=(0,1))
-        if self.doc.long_description: p(self.doc.long_description, pad=-1)
-        return p
+    def pretty_full(self, print):
+        if self.doc.short_description: print('\bem$', self.doc.short_description)
+        if self.doc.long_description: print(self.doc.long_description)

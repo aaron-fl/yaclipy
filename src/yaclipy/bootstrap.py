@@ -1,5 +1,5 @@
 import sys, os, shutil
-from print_ext import print, PrettyException, Text
+from print_ext import Printer, PrettyException
 from subprocess import run
 
 
@@ -7,6 +7,7 @@ class EnvSetup(PrettyException): pass
 
 
 def ensure_requirements(req, venv):
+    print = Printer()
     req_lock = os.path.splitext(req)[0] + '.lock'
     cur_lock = os.path.join(venv, os.path.basename(req_lock))
     if run(['diff', req_lock, cur_lock]).returncode == 0: return

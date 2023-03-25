@@ -1,8 +1,7 @@
 import pytest
 from yaclipy import Command, sub_cmds
 from yaclipy.exceptions import CmdError
-from print_ext import Printer, Line
-from .testutil import printer
+from print_ext import StringPrinter, Line
 
 
 def test_CmdError_pretty():
@@ -26,22 +25,16 @@ def test_CmdError_pretty():
 
     cmd = Command(f)
     err = CmdError(cmd=cmd, errors=[Line('bad')])
-    o,p = printer(color=False, ascii=True)
+    p = StringPrinter(color=False, ascii=True)
     p.pretty(err)
-    print(o.getvalue())
-    assert(o.getvalue() == '''
+    assert(str(p) == '''
  * a-long-name About time.
 
  * bob         bobby
-
 ---
-
 Short description.
-
 Log description starts here
-
 -[ CmdError ]-
-
  * bad
 ''')
 

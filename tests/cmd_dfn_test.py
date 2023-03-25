@@ -1,5 +1,4 @@
 import pytest
-from print_ext import print
 from yaclipy import Command, sub_cmds
 from yaclipy.command import CommandNotFound
 from yaclipy.exceptions import *

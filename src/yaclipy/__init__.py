@@ -3,4 +3,4 @@
 # SPDX-License-Identifier: MIT
 from .bootstrap import ensure_requirements
 from .command import Command, sub_cmds
-from .config import Config
+from .config import get_config, copy_config, include, config_var, configure

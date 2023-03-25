@@ -144,3 +144,65 @@ def test_cmd_generator():
     s[:]=[]
     exe(f, '2 get')
     assert(s == [3,4])
+
+
+
+def test_call_async():
+    async def f(times__t=3):
+        return 'hi'*times__t
+    v = exe(f, '-t 2')
+    assert(v == 'hihi')
+
+
+
+def test_call_sub_async():
+    async def g(*, _input):
+        return f"VALUE:{_input}"
+
+    @sub_cmds(g)
+    async def f(times__t=3):
+        return 'hi'*times__t
+
+    v = exe(f, '-t 2 g')
+    assert(v == 'VALUE:hihi')
+
+
+
+def test_call_sub_async_gen():
+    async def g(*, _input):
+        return f"VALUE:{_input}"
+    @sub_cmds(g)
+    async def f(times__t=3):
+        yield 'a'
+        yield 'b'
+    v = exe(f, '-t 2 g')
+    assert(v == ['VALUE:a','VALUE:b'])
+
+
+
+def test_call_sub3():
+    def h(*, _input):
+        yield 'h'
+    @sub_cmds(h)
+    async def g(*, _input):
+        yield 'g'
+    @sub_cmds(g)
+    def f():
+        yield 'f'
+    v = exe(f, 'g h')
+    assert(v == [[['h']]])
+
+
+
+def test_call_class():
+    class Jim():
+        def __init__(self, x):
+            self.x = x
+        def g(self):
+            return f"jim:{self.x*self.x}"
+    class Bob(Jim):
+        def __call__(self) -> Jim:
+            return self
+    
+    v = exe(Bob(3), 'g')
+    assert(v == 'jim:9')

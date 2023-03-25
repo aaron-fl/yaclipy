@@ -1,5 +1,5 @@
 import io
-from print_ext import print, Flattener, PrettyException
+from print_ext import Printer, StringPrinter, PrettyException
 from yaclipy import Command, sub_cmds
 from yaclipy.arg_spec import ArgSpec
 
@@ -17,7 +17,7 @@ def bind(fn, args):
         cmd = Command(fn)
         cmd(_to_args(args))
         if DEBUG:
-            print('--------- cmd.run_spec -----------')
+            print = Printer('--------- cmd.run_spec -----------')
             print.pretty(cmd.run_spec)
             print.pretty(cmd.run_spec.argv)
         return cmd.run_spec.args, [(k,cmd.run_spec.kwargs[k]) for k in sorted(cmd.run_spec.kwargs)]
@@ -32,7 +32,7 @@ def bind_unused(fn, args):
         cmd = Command(fn)
         cmd(_to_args(args))
         if DEBUG:
-            print('--------- cmd.run_spec -----------')
+            print = Printer('--------- cmd.run_spec -----------')
             print.pretty(cmd.run_spec)
             print.pretty(cmd.run_spec.argv)
         return []
@@ -46,7 +46,7 @@ def bind_err(fn, args):
     try:
         cmd = Command(fn)(_to_args(args))
         if DEBUG:
-            print('--------- cmd.run_spec -----------')
+            print = Printer('--------- cmd.run_spec -----------')
             print.pretty(cmd.run_spec)
             print.pretty(cmd.run_spec.argv)
         return set()
@@ -67,19 +67,13 @@ def exe(fn, args, **incoming):
         cmd = Command(fn)(_to_args(args))
         return cmd.run(incoming)        
     except PrettyException as e:
-        if DEBUG: print.pretty(e)
+        if DEBUG: Printer().pretty(e)
         raise e
 
 
-def printer(**kwargs):
-    o = io.StringIO()
-    p = Flattener(stream=o, **kwargs)
-    return o,p
-   
-
 def tostr(*args, **kwargs):
-    o,p = printer(**kwargs)
+    p = StringPrinter(**kwargs)
     p(*args, **kwargs)
-    return o.getvalue()
+    return str(p)
 
     

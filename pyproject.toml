@@ -23,7 +23,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ['print-ext>=0.14.1', 'docstring_parser']
+dependencies = ['print-ext>=1.4.1', 'docstring_parser']
 dynamic = ["version"]
 
 [project.urls]
@@ -38,6 +38,7 @@ path = "src/yaclipy/__about__.py"
 dependencies = [
   "pytest",
   "pytest-cov",
+  "pytest-asyncio",
 ]
 [tool.hatch.envs.default.scripts]
 cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=src/yaclipy --cov=tests"

@@ -1,7 +1,7 @@
-from yaclipy import Config
+import yaclipy as CLI
 import config
 
-me = Config.var('My own private variable', "'sup")
+me = CLI.config_var('My own private variable', "'sup")
 
 @config.test.override()
 def test(super):

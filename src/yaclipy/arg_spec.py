@@ -1,13 +1,13 @@
 import inspect, os, copy, json, re
 from inspect import Parameter
-from print_ext import print, Table, pretty, Line, Printer
+from print_ext import Table, pretty, Line
+from print_ext.widget import INFINITY
 from .exceptions import UsageError
 
-INFINITY = 1000000000000
 
 def sig_kinds(fn):
     kinds = set()
-    for k in ['generatorfunction']:#'module', 'class', 'method', 'function', , 'generator', 'coroutinefunction', 'coroutine', 'awaitable', 'asyncgenfunction', 'asyncgen', 'traceback', 'frame', 'code', 'builtin', 'methodwrapper', 'routine', 'abstract', 'methoddescriptor', 'datadescriptor', 'getsetdescriptor', 'memberdescriptor']:
+    for k in ['module', 'function', 'generatorfunction', 'generator', 'coroutinefunction', 'asyncgenfunction', 'asyncgen', 'coroutine', 'awaitable', 'class' , 'method',  'traceback', 'frame', 'code', 'builtin', 'methodwrapper', 'routine', 'abstract', 'methoddescriptor', 'datadescriptor', 'getsetdescriptor', 'memberdescriptor']:
         try:
             if getattr(inspect, 'is'+k)(fn): kinds.add(k)
         except:
@@ -18,8 +18,11 @@ def sig_kinds(fn):
 def func_name(fn, attr='__name__'):
     try:
         return getattr(fn.__func__, attr)
-    except:
-        return getattr(fn, attr)
+    except AttributeError:
+        try:
+            return getattr(fn, attr)
+        except AttributeError:
+            return getattr(fn.__class__, attr)
 
 
 def name_split(name):
@@ -348,9 +351,8 @@ class ArgSpec():
         return arg
 
 
-    def __pretty__(self, *, _depth, depth, **kwargs):
-        p = Printer()
-        p(f"\b1 {func_name(self.fn,'__qualname__')}[\b2 {' '.join(self.kinds)}\b ]\b3 {self.args or '()'}{self.kwargs or '{}'}")
+    def __pretty__(self, print, *, _depth, depth, **kwargs):
+        print(f"\b1 {func_name(self.fn,'__qualname__')}[\b2 {' '.join(self.kinds)}\b ]\b3 {self.args or '()'}{self.kwargs or '{}'}")
         tbl = Table(0,0,0,0,0)
         tbl.cell("C0", just='>')
         tbl.cell("C1", style='1', just='>')
@@ -363,7 +365,6 @@ class ArgSpec():
             tbl(v.index or ' ', '\t')
             tbl(v.type, '\t')
             tbl(pretty('\br *req*' if v.default == Parameter.empty else v.default, _depth=_depth+1, depth=depth-1, **kwargs), '\t')
-        p(tbl)
+        print(tbl)
         for e in self.errors:
-            p(e[1])
-        return p
+            print(e[1])

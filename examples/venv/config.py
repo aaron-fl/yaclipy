@@ -1,22 +1,22 @@
-from yaclipy import Config
+import yaclipy as CLI
 
-prefix = Config.var('A prefix to distinguish configurations.', '')
-title = Config.var('The app title', 'Awesome App')
+prefix = CLI.config_var('A prefix to distinguish configurations.')
+title = CLI.config_var('The app title', 'Awesome App')
 
 
-@Config.option()
+@CLI.configure()
 def dev():
     prefix('dev')
 
 
-@Config.option()
+@CLI.configure()
 def prod():
     prefix('prod')
 
 
-@Config.option()
+@CLI.configure()
 def test():
     prefix('test')
 
 
-with Config.include: import local.config
+with CLI.include: import local.config

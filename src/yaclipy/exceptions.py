@@ -4,9 +4,8 @@ from print_ext import pretty, Table, Printer, PrettyException, Bdr
 
 class CmdError(PrettyException):
         
-    def pretty_help(self):
+    def pretty_help(self, print):
         cmd = self.cmd
-        p = Printer()
         tbl = Table(0.0, 0.0, 1, tmpl='')
         tbl.cell('ALL', cls=Bdr, border=(' ','m:1010'))
         #tbl.cell('R-1', border=('m:1010'))
@@ -15,24 +14,22 @@ class CmdError(PrettyException):
         #tbl.cell('R-1', border='m:1110')
         for cmd in sorted(self.cmd.sub_cmds().values(), key=lambda x: x.name):
             tbl('*\t', cmd.name,'\t', pretty(cmd.doc(), fmt='short'),'\t')
-        p(tbl)
-        if tbl: p.hr(pad=1)
-        p.pretty(self.cmd.doc(), pad=1)
-        return p
+        print(tbl)
+        if tbl: print.hr()
+        print.pretty(self.cmd.doc())
 
 
-    def __pretty__(self, **kwargs):
-        p = self.pretty_help()
-        p.hr(self.__class__.__name__, style='err', pad=1)
+    def __pretty__(self, print, **kwargs):
+        self.pretty_help(print)
+        print.hr(self.__class__.__name__, style='err')
         for err in self.errors:
-            p(' \berr * ', err)
-        return p
+            print(' \berr * ', err)
 
 
 
 class CmdHelp(CmdError):
-    def __pretty__(self, **kwargs):
-        return self.pretty_help()
+    def __pretty__(self, print, **kwargs):
+        self.pretty_help(print)
 
 
 
@@ -55,8 +52,8 @@ class UsageError(PrettyException):
     def __init__(self, fn, *msg):
         super().__init__(msg=msg, fn=fn)
 
-    def __pretty__(self, **kwargs):
+    def __pretty__(self, print, **kwargs):
         lines, lno = inspect.getsourcelines(self.fn)
-        p = Printer(lines[0])
-        p('\b2$', os.path.relpath(inspect.getsourcefile(self.fn)), f'\bdem :{lno}')
-        return p(*self.msg, pad=1)
+        print(lines[0])
+        print('\b2$', os.path.relpath(inspect.getsourcefile(self.fn)), f'\bdem :{lno}')
+        print(*self.msg)
