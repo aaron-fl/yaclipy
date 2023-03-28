@@ -23,7 +23,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ['print-ext>=1.4.1', 'docstring_parser']
+dependencies = ['print-ext>=2.1.1', 'docstring_parser']
 dynamic = ["version"]
 
 [project.urls]

@@ -20,7 +20,7 @@ async def build():
         for i, fname in enumerate(files):
             update('Process \b2$', fname, '\b$ ...', tag={'progress':(i, len(files))})
             await asyncio.sleep(0.5)
-    update('Done!', tag='progress:100')
+    update('Done!', tag='progress:done')
 
 
 

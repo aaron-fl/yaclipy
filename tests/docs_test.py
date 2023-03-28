@@ -1,7 +1,7 @@
 import pytest
 from yaclipy import Command, sub_cmds
 from yaclipy.exceptions import CmdError
-from print_ext import StringPrinter, Line
+from print_ext import StringIO, Printer, Line
 
 
 def test_CmdError_pretty():
@@ -25,7 +25,7 @@ def test_CmdError_pretty():
 
     cmd = Command(f)
     err = CmdError(cmd=cmd, errors=[Line('bad')])
-    p = StringPrinter(color=False, ascii=True)
+    p = Printer.using(StringIO)(color=False, ascii=True)
     p.pretty(err)
     assert(str(p) == '''
  * a-long-name About time.

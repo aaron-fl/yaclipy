@@ -1,6 +1,6 @@
 import pytest, traceback, contextvars
 from yaclipy.config import *
-from print_ext import pretty, StringPrinter
+from print_ext import pretty, Printer, StringIO
 from .testutil import tostr
 
 

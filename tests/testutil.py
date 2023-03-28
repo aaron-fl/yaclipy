@@ -1,5 +1,5 @@
 import io
-from print_ext import Printer, StringPrinter, PrettyException
+from print_ext import Printer, StringIO, PrettyException
 from yaclipy import Command, sub_cmds
 from yaclipy.arg_spec import ArgSpec
 
@@ -72,7 +72,7 @@ def exe(fn, args, **incoming):
 
 
 def tostr(*args, **kwargs):
-    p = StringPrinter(**kwargs)
+    p = Printer.using(StringIO)(**kwargs)
     p(*args, **kwargs)
     return str(p)
 
