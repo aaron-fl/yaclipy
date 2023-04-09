@@ -22,6 +22,13 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
+  "Environment :: Console",
+  "Framework :: AsyncIO",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: Software Development",
+  "Topic :: Software Development :: User Interfaces",
+  "Topic :: Terminals",
 ]
 dependencies = ['print-ext>=2.1.1', 'docstring_parser']
 dynamic = ["version"]
@@ -69,3 +76,8 @@ exclude = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/yaclipy"]
+
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+addopts = '--doctest-modules --ignore=local --ignore=tests/notest --ignore=examples --doctest-glob="*.rst"'

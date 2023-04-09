@@ -22,6 +22,16 @@ def _tsterr(spec, args, *errs):
 
 
 
+def test_bind_int():
+    def f(a:int): return a
+    assert(bind(f, '0xff') == ([255], []))
+    assert(bind(f, '0Xff') == ([255], []))
+    assert(bind(f, '0b101') == ([5], []))
+    assert(bind(f, '077') == ([63], []))
+    assert(bind(f, '0') == ([0], []))
+    assert(bind(f, '0004') == ([4], []))
+ 
+  
 def test_bind_positional():
     def f(a, b, /): pass
     assert(bind(f, '\\ -33') == (['','-33'], []))

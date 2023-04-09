@@ -104,11 +104,11 @@ class Configuration():
     def set_name(self, name):
         self.hide()
         self.name = name.replace('_','-')
-        get_config().set_configuration(self)
+        get_config().add_configure(self)
 
 
     def hide(self):
-        get_config().set_configuration(self, unset=True)
+        get_config().add_configure(self, unset=True)
 
 
     def __hash__(self):
@@ -134,9 +134,9 @@ class Configuration():
 
 class Config():
 
-    def __init__(self, name='', *, parent=None):
+    def __init__(self, *, parent=None):
         self.parent = parent
-        self.name = name
+        self.name = ''
         self.vars = set(parent.vars) if parent else set()
         self.configurations = set(parent.configurations) if parent else set()
         self._values = {}
@@ -156,7 +156,7 @@ class Config():
 
 
     def __getitem__(self, var):
-        if isinstance(var, str): return self.get_configuration(var)
+        if isinstance(var, str): return self.get_configure(var)
         if var not in self.vars:
             tb = traceback.extract_stack(limit=3)[0]
             raise ConfigVarNotFound(tb=tb, var=var, cfg=self)
@@ -192,7 +192,7 @@ class Config():
         var.dfns.append((os.path.relpath(tb.filename), tb.lineno))
 
 
-    def get_configuration(self, name, stack_offset=0):
+    def get_configure(self, name, stack_offset=0):
         name = name.replace('_','-')
         for cfg in self.configurations:
             if cfg == name: return cfg
@@ -201,11 +201,16 @@ class Config():
             raise InvalidConfiguration(name=name, cfg=self, tb=tb)
 
 
-    def set_configuration(self, cfg, unset=False):
+    def add_configure(self, cfg, unset=False):
         if unset:
             self.configurations.discard(cfg)
         else:
             self.configurations.add(cfg)
+
+
+    def set_configure(self, name, stack_offset=1):
+        self.name = name
+        self.get_configure(name, stack_offset=stack_offset).fn()         
 
 
     def __str__(self):
@@ -235,7 +240,8 @@ class Config():
         print(tbl)
         if n_hidden: print(f'\bwarn {n_hidden} hidden')
         if self.configurations:
-            print.card('Configurations\t','\b1$', '    '.join(map(str, sorted(self.configurations))))
+            cfgs = [f'\b{2 if c==self.name else 3} {c}    ' for c in map(str, sorted(self.configurations))]
+            print.card('Configurations\t',*cfgs)
 
 
 # The configuration is accessed through a ContextVar
@@ -245,17 +251,21 @@ def get_config():
     return config_contextvar.get()
 
 
-def copy_config(configuration='', *, context=None):
-    ''' Create a new Config() that is in the given `configuration`.
+def set_config(name='', context=None):
+    cfg = Config(parent=get_config())
+    def in_ctx():
+        config_contextvar.set(cfg)
+        if name: cfg.set_configure(name, 2)
+    context.run(in_ctx) if context else in_ctx()
+    return cfg
+
+
+def copy_config(name='', *, context=None):
+    ''' Create a new Config() that is in the given `name`.
     The new Config() is set in a copy of the given `context` and the new context is returned.
     '''
     ctx = context.copy() if context else contextvars.copy_context()
-    cfg = Config(configuration, parent=get_config())
-    def in_ctx():
-        config_contextvar.set(cfg)
-        if configuration:
-            cfg.get_configuration(configuration,stack_offset=1).fn()
-    ctx.run(in_ctx)
+    set_config(name, ctx)
     return ctx
 
 

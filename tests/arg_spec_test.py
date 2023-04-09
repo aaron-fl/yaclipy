@@ -38,3 +38,13 @@ def test_no_self_aliases():
     def h(x__self): pass
     with pytest.raises(UsageError):
         spec = ArgSpec(h)
+
+
+def test_type_mismatch():
+    def f(a:int, b:int, * c:int): pass
+    s = ArgSpec(f)(['1','b','-c','9'])
+    errs = set([e[0] for e in s.errors])
+    assert(errs == {'NO_VALUE', 'TYPE_MISMATCH', 'UNK_PARAM'})
+    estr = [e[1] for e in s.errors if e[0] == 'NO_VALUE'][0]
+    assert('2nd' in str(estr))
+

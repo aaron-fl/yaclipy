@@ -4,6 +4,13 @@ from print_ext import Table, pretty, Line
 from print_ext.widget import INFINITY
 from .exceptions import UsageError
 
+def coerce_int(v):
+    if isinstance(v, str):
+        if v.lower().startswith('0x'): return int(v, 16)
+        if v.lower().startswith('0b'): return int(v, 2)
+        if len(v)>1 and v.startswith('0') and v[1] in '123456789': return int(v, 8)
+    return int(v)
+
 
 def sig_kinds(fn):
     kinds = set()
@@ -45,6 +52,7 @@ class ArgType():
         if not callable(val):
             val = type(val)
         self.coerce = str if val==type(None) or val==Parameter.empty else val
+        if self.coerce == int: self.coerce = coerce_int
         self.is_flag = self.coerce == bool
         if self.coerce == dict: self.coerce = json.loads
         if self.repeated and self.is_flag: raise ValueError("We can't handle repeated bool arguments")
@@ -96,7 +104,7 @@ class ArgParam(dict):
             self['value'] = self.type.merge(val, self.value)
         except ValueError as e:
             if isinstance(index, int):
-                self.spec.error('TYPE_MISMATCH', f"Type mismatch on \b1 {ordinal(index)}\b  parameter.  {e}")
+                self.spec.error('TYPE_MISMATCH', f"Type mismatch on \b1 {self.ordinal}\b  parameter.  {e}")
             else:
                 self.spec.error('TYPE_MISMATCH', f"Parameter '\b1 {index}\b ' type mismatch.  {e}")
 

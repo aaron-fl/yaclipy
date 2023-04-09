@@ -120,8 +120,12 @@ class Command():
         try:
             loop = asyncio.get_running_loop()
         except RuntimeError:
+            loop = None
+        if loop:
+            return loop.create_task(self._run(input), name=self.name)
+        else:
             return asyncio.run(self._run(input))
-        task = loop.create_task(self._run(input), name=self.name)
+        
 
 
     def doc(self, check=False):
